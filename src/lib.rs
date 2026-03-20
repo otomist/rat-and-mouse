@@ -1,3 +1,4 @@
-pub fn project_name() -> &'static str {
-	"rat-and-mouse"
-}
+pub mod app;
+pub mod input;
+pub mod model;
+pub mod ui;

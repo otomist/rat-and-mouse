@@ -4,6 +4,7 @@ use crossterm::event;
 use ratatui::{backend::CrosstermBackend, Terminal};
 
 use crate::{
+    examples::clickable_title_footer,
     input,
     model::{AppState, Button, ButtonId, UiEvent},
     ui,
@@ -26,9 +27,8 @@ impl App {
     pub fn new() -> Self {
         let mut app = Self {
             state: AppState {
-                title: "Example Ratatui App".to_string(),
-                footer: "This is an example paragraph at the bottom of the screen. It stays centered in the layout while the button grid remains interactive in the middle.".to_string(),
                 status: "Use Tab, Shift+Tab, arrow keys, or click a button. Press Enter to activate. Press q to quit.".to_string(),
+                clickables: clickable_title_footer::create_items(),
                 buttons: vec![
                     Button::new("button.one", "Button 1"),
                     Button::new("button.two", "Button 2"),
@@ -41,6 +41,7 @@ impl App {
         };
 
         app.register_default_handlers();
+        clickable_title_footer::register_handlers(&mut app);
         app
     }
 
@@ -126,7 +127,7 @@ impl App {
             return;
         }
 
-        if let Some(label) = self.state.button_label(&id) {
+        if let Some(label) = self.state.element_label(&id) {
             self.state.status = format!("Clicked {label} (no handler registered)");
         }
     }

@@ -53,9 +53,8 @@ impl Button {
 
 #[derive(Debug)]
 pub struct AppState {
-    pub title: String,
-    pub footer: String,
     pub status: String,
+    pub clickables: Vec<Button>,
     pub buttons: Vec<Button>,
     pub selected: usize,
 }
@@ -69,11 +68,35 @@ impl AppState {
         self.buttons.get(self.selected).map(|button| button.label.as_str())
     }
 
-    pub fn button_label(&self, id: &ButtonId) -> Option<&str> {
+    pub fn element_label(&self, id: &ButtonId) -> Option<&str> {
+        if let Some(label) = self
+            .clickables
+            .iter()
+            .find(|item| &item.id == id)
+            .map(|item| item.label.as_str())
+        {
+            return Some(label);
+        }
+
         self.buttons
             .iter()
             .find(|button| &button.id == id)
             .map(|button| button.label.as_str())
+    }
+
+    pub fn clickable_label(&self, id: impl Into<ButtonId>) -> Option<&str> {
+        let id = id.into();
+        self.clickables
+            .iter()
+            .find(|item| item.id == id)
+            .map(|item| item.label.as_str())
+    }
+
+    pub fn set_clickable_rect(&mut self, id: impl Into<ButtonId>, rect: Rect) {
+        let id = id.into();
+        if let Some(item) = self.clickables.iter_mut().find(|item| item.id == id) {
+            item.rect = rect;
+        }
     }
 
     pub fn focus_by_id(&mut self, id: &ButtonId) {
@@ -121,6 +144,15 @@ impl AppState {
     }
 
     pub fn clicked_button_id_at(&self, x: u16, y: u16) -> Option<ButtonId> {
+        if let Some(id) = self
+            .clickables
+            .iter()
+            .find(|item| item.enabled && item.hit_test(x, y))
+            .map(|item| item.id.clone())
+        {
+            return Some(id);
+        }
+
         self.buttons
             .iter()
             .find(|button| button.enabled && button.hit_test(x, y))

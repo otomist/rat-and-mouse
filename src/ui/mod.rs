@@ -7,6 +7,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Wrap},
 };
 
+use crate::examples::clickable_title_footer::{FOOTER_ID, TITLE_ID};
 use crate::model::AppState;
 
 pub fn draw(frame: &mut Frame<'_>, state: &mut AppState) {
@@ -20,17 +21,25 @@ pub fn draw(frame: &mut Frame<'_>, state: &mut AppState) {
         ])
         .split(area);
 
-    let title = Paragraph::new(Line::from(state.title.as_str()))
+    state.set_clickable_rect(TITLE_ID, sections[0]);
+    let title_text = state
+        .clickable_label(TITLE_ID)
+        .unwrap_or("Example Ratatui App (click me)");
+    let title = Paragraph::new(Line::from(title_text))
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::BOTTOM));
+        .block(Block::default().borders(Borders::BOTTOM).title("Clickable"));
     frame.render_widget(title, sections[0]);
 
     render_button_grid(frame, sections[1], state);
 
-    let footer = Paragraph::new(Text::from(state.footer.as_str()))
+    state.set_clickable_rect(FOOTER_ID, sections[2]);
+    let footer_text = state
+        .clickable_label(FOOTER_ID)
+        .unwrap_or("Example footer paragraph (click me)");
+    let footer = Paragraph::new(Text::from(footer_text))
         .alignment(Alignment::Center)
         .wrap(Wrap { trim: true })
-        .block(Block::default().borders(Borders::TOP).title("Example Paragraph"));
+        .block(Block::default().borders(Borders::TOP).title("Clickable Footer"));
     frame.render_widget(footer, sections[2]);
 }
 
